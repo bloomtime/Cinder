@@ -157,11 +157,12 @@ class AppCocoaTouch : public App {
 	void		privateAccelerated__( const Vec3f &direction );
 	//! \endcond
 
+    // The state is contained in a struct in order to avoid this .h needing to be compiled as Objective-C++
+    // XXX: moved to public to support applicationDidEnterBackground, applicationWillEnterForeground, applicationWillResignActive and applicationDidBecomeActive
+	std::shared_ptr<AppCocoaTouchState>		mState;	
+
   private:
 	friend void		setupCocoaTouchWindow( AppCocoaTouch *app );
-	
-	// The state is contained in a struct in order to avoid this .h needing to be compiled as Objective-C++
-	std::shared_ptr<AppCocoaTouchState>		mState;
 	
 	static AppCocoaTouch	*sInstance;	
 	Settings				mSettings;
