@@ -68,14 +68,17 @@ using boost::uint64_t;
 		using std::tr1::static_pointer_cast;
 		using std::tr1::dynamic_pointer_cast;
 		using std::tr1::const_pointer_cast;
+		using std::tr1::enable_shared_from_this;
 	}
 #else
 	#include <boost/shared_ptr.hpp>
+	#include <boost/enable_shared_from_this.hpp>
 	namespace std {
 		using boost::shared_ptr; // future-proof shared_ptr by putting it into std::
 		using boost::static_pointer_cast;
 		using boost::dynamic_pointer_cast;
 		using boost::const_pointer_cast;
+		using boost::enable_shared_from_this;		
 	}
 #endif
 

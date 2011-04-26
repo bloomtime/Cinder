@@ -82,6 +82,7 @@ class RectT {
 	Vec2<T>		getLowerRight() const { return Vec2<T>( x2, y2 ); };	
 	Vec2<T>		getLowerLeft() const { return Vec2<T>( x1, y2 ); };	
 	Vec2<T>		getCenter() const { return Vec2<T>( ( x1 + x2 ) / 2, ( y1 + y2 ) / 2 ); }
+	Vec2<T>		getSize() const { return Vec2<T>( x2 - x1, y2 - y1 ); }
 
 	/** \return Scaled copy with the same aspect ratio centered relative to and scaled to fit inside \a other. If \a expand then the rectangle is expanded if it is smaller than \a other */
 	RectT		getCenteredFit( const RectT &other, bool expand ) const;
@@ -119,6 +120,8 @@ typedef RectT<double>	Rectd;
 // This class maps a rectangle into another rectangle
 class RectMapping {
  public:
+    RectMapping()
+        : mSrcRect( 0, 0, 0, 0 ), mDstRect( 0, 0, 0, 0 ) {}
 	RectMapping( const Rectf &aSrcRect, const Rectf &aDstRect )
 		: mSrcRect( aSrcRect ), mDstRect( aDstRect ) {}
 	RectMapping( const Rectf &aSrcRect, const Rectf &aDstRect, bool preserveSrcAspect );
