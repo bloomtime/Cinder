@@ -98,7 +98,11 @@ TextureFont::TextureFont( const Font &font, const string &supportedChars, const 
 
 			gl::Texture::Format textureFormat = gl::Texture::Format();
 			textureFormat.enableMipmapping( mFormat.hasMipmapping() );
+#if ! defined( CINDER_GLES )            
 			textureFormat.setInternalFormat( GL_LUMINANCE_ALPHA );
+#else
+            textureFormat.setInternalFormat( GL_RGBA );
+#endif
 			mTextures.push_back( gl::Texture( surface, textureFormat ) );
 			ip::fill( &surface, ColorA8u( 0, 0, 0, 0 ) );			
 			curOffset = Vec2i::zero();
