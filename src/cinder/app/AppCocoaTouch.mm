@@ -77,19 +77,21 @@ void setupCocoaTouchWindow( AppCocoaTouch *app )
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
-	[app->mState->mCinderView startAnimation];    
+	[app->mState->mCinderView startAnimation];
 }
 
 - (void) applicationWillResignActive:(UIApplication *)application
 {
-	[app->mState->mCinderView stopAnimation]; // FIXME: pause seems to be recommended elsewhere
 //	[cinderView stopAnimation];
+    [app->mState->mCinderView stopAnimation];
+    app->willResignActive();
 }
 
 - (void) applicationDidBecomeActive:(UIApplication *)application
 {
-    [app->mState->mCinderView startAnimation]; // FIXME: resume seems to be recommended elsewhere
 //	[cinderView startAnimation];
+    [app->mState->mCinderView startAnimation];
+    app->didBecomeActive();
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
