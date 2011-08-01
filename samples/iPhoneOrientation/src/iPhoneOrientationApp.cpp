@@ -59,21 +59,10 @@ class iPhoneOrientationApp : public AppCocoaTouch {
 void iPhoneOrientationApp::setup()
 {
     // this is the size of our simulated "device" on screen:
-    deviceSize = Vec2f(384, 512);
-    
+    deviceSize = Vec2f(384, 512);    
+
     // adds observer and initializes deviceOrientation
     setupNotifications(this);
-    
-    // this is the setup of the interface inside our simulated device
-    interfaceSize = deviceSize;
-    interfaceOrientation = deviceOrientation;
-    interfaceAngle = 0.0;
-    
-    // initially we don't want to animate, so set these
-    targetInterfaceSize = interfaceSize;
-    targetInterfaceAngle = interfaceAngle;    
-    prevInterfaceSize = interfaceSize;    
-    prevInterfaceAngle = interfaceAngle;
     
     mTextureFont = gl::TextureFont::create( Font( "Helvetica-Bold", 24 ) );
     
@@ -103,28 +92,40 @@ void iPhoneOrientationApp::setDeviceOrientation( Orientation orientation, bool a
     deviceOrientation = orientation;
 
     if (interfaceOrientation != deviceOrientation) {
+
+        // <3 Processing :-p
+        const float TWO_PI = 2.0f * M_PI;        
         
         // update interface orientation
         interfaceOrientation = deviceOrientation;
-        
-        // normalize interfaceAngle (could be many turns)
-        while (interfaceAngle < 0.0) interfaceAngle += 2.0f * M_PI;
-        while (interfaceAngle > 2.0f * M_PI) interfaceAngle -= 2.0f * M_PI;
-            
+
         // assign new targets
         float orientationAngle = getDeviceAngle(deviceOrientation);
         targetInterfaceSize.x = fabs(deviceSize.x * cos(orientationAngle) + deviceSize.y * sin(orientationAngle));
         targetInterfaceSize.y = fabs(deviceSize.y * cos(orientationAngle) + deviceSize.x * sin(orientationAngle));
-        targetInterfaceAngle = 2.0f*M_PI-orientationAngle;
+        targetInterfaceAngle = TWO_PI - orientationAngle;
+
+        if (animate) {
+            
+            // normalize interfaceAngle 
+            // (could be many turns in theory, depending on how you end up animating it)
+            if (interfaceAngle < 0.0) {
+                float turns = floor( fabs(interfaceAngle) / TWO_PI );
+                interfaceAngle += turns * TWO_PI;
+            } else if (interfaceAngle > TWO_PI) {
+                float turns = floor( interfaceAngle / TWO_PI );
+                interfaceAngle -= turns * TWO_PI;
+            }
         
-        // make sure we're turning the right way
-        if (abs(targetInterfaceAngle-interfaceAngle) > M_PI) {
-            if (targetInterfaceAngle < interfaceAngle) {
-                targetInterfaceAngle += 2.0f * M_PI;
+            // make sure we're turning the right way
+            if (abs(targetInterfaceAngle-interfaceAngle) > M_PI) {
+                if (targetInterfaceAngle < interfaceAngle) {
+                    targetInterfaceAngle += TWO_PI;
+                } else {
+                    targetInterfaceAngle -= TWO_PI;
+                }
             }
-            else {
-                targetInterfaceAngle -= 2.0f * M_PI;
-            }
+            
         }
         
         // remember previous settings for animating
@@ -143,11 +144,11 @@ void iPhoneOrientationApp::setDeviceOrientation( Orientation orientation, bool a
 void iPhoneOrientationApp::update()
 {
     float timeSinceChange = getElapsedSeconds() - orientationChangeTime;
-    float animationDuration = 0.25f;
+    float animationDuration = 0.25f; // note Apple does a fixed angular velocity, we do fixed time here
     
     // animate transition
     if (timeSinceChange < animationDuration) {
-        float p = timeSinceChange / animationDuration;
+        float p = timeSinceChange / animationDuration; // Apple has a slight ease out, we're linear here
         interfaceSize = lerp( prevInterfaceSize, targetInterfaceSize, p );
         interfaceAngle = lerp( prevInterfaceAngle, targetInterfaceAngle, p );
     } else {
