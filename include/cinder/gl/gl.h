@@ -31,7 +31,7 @@
 	#include "cinder/gl/GLee.h"
 #else
 	#define CINDER_GLES
-	#define CINDER_GLES1
+	#define CINDER_GLES2
 #endif
 
 #include "cinder/Quaternion.h"
@@ -49,15 +49,15 @@
 	#undef max
 	#include <gl/gl.h>
 #elif defined( CINDER_COCOA_TOUCH )
-	#include <OpenGLES/ES1/gl.h>
-	#include <OpenGLES/ES1/glext.h>
+	#include <OpenGLES/ES2/gl.h>
+	#include <OpenGLES/ES2/glext.h>
 #elif defined( CINDER_MAC )
 	#include <OpenGL/gl.h>
 #endif
 
 // forward declarations
 namespace cinder {
-	class Camera; class TriMesh; class Sphere;
+	class Camera; class TriMesh2d; class TriMesh; class Sphere;
 	namespace gl {
 		 class VboMesh; class Texture;
 	}
@@ -147,7 +147,6 @@ inline void vertex( float x, float y ) { glVertex2f( x, y ); }
 inline void vertex( const Vec3f &v ) { glVertex3fv( &v.x ); }
 //! Used between calls to \c glBegin and \c glEnd, appends a vertex to the current primitive.
 inline void vertex( float x, float y, float z ) { glVertex3f( x, y, z ); }
-#endif // ! defined( CINDER_GLES )
 //! Sets the current color and the alpha value to 1.0
 inline void color( float r, float g, float b ) { glColor4f( r, g, b, 1.0f ); }
 //! Sets the current color and alpha value
@@ -160,6 +159,7 @@ inline void color( const ColorA8u &c ) { glColor4ub( c.r, c.g, c.b, c.a ); }
 inline void color( const Color &c ) { glColor4f( c.r, c.g, c.b, 1.0f ); }
 //! Sets the current color and alpha value
 inline void color( const ColorA &c ) { glColor4f( c.r, c.g, c.b, c.a ); }
+#endif // ! defined( CINDER_GLES )
 
 //! Enables the OpenGL State \a state. Equivalent to calling to glEnable( state );
 inline void enable( GLenum state ) { glEnable( state ); }
@@ -215,10 +215,16 @@ void draw( const class Sphere &sphere, int segments = 12 );
 void drawSolidCircle( const Vec2f &center, float radius, int numSegments = 0 );
 //! Renders a stroked circle using a line loop. The default value of zero for \a numSegments automatically determines a number of segments based on the circle's circumference.
 void drawStrokedCircle( const Vec2f &center, float radius, int numSegments = 0 );
+//! Renders a solid ellipse using triangle fans. The default value of zero for \a numSegments automatically determines a number of segments based on the ellipse's circumference.
+void drawSolidEllipse( const Vec2f &center, float radiusX, float radiusY, int numSegments = 0 );
+//! Renders a stroked circle using a line loop. The default value of zero for \a numSegments automatically determines a number of segments based on the circle's circumference.
+void drawStrokedEllipse( const Vec2f &center, float radiusX, float radiusY, int numSegments = 0 );
 //! Renders a solid rectangle. Texture coordinates in the range [0,1] are generated unless \a textureRectangle.
 void drawSolidRect( const Rectf &rect, bool textureRectangle = false );
 //! Renders a stroked rectangle.
 void drawStrokedRect( const Rectf &rect );
+void drawSolidRoundedRect( const Rectf &r, float cornerRadius, int numSegmentsPerCorner = 0 );
+void drawStrokedRoundedRect( const Rectf &r, float cornerRadius, int numSegmentsPerCorner = 0 );
 //! Renders a coordinate frame representation centered at the origin. Arrowheads are drawn at the end of each axis with radius \a headRadius and length \a headLength.
 void drawCoordinateFrame( float axisLength = 1.0f, float headLength = 0.2f, float headRadius = 0.05f );
 //! Draws a vector starting at \a start and ending at \a end. An arrowhead is drawn at the end of radius \a headRadius and length \a headLength.
@@ -239,9 +245,18 @@ void draw( const class Path2d &path2d, float approximationScale = 1.0f );
 void draw( const class Shape2d &shape2d, float approximationScale = 1.0f );
 
 #if ! defined( CINDER_GLES )
-//! Draws a solid (filled) Path2d \a path2d using approximation scale \a approximationScale. 1.0 corresponds to screenspace, 2.0 is double screen resolution, etc
-void drawSolid( const class Path2d &path2d, float approximationScale = 1.0f );
 
+//! Draws a solid (filled) Path2d \a path2d using approximation scale \a approximationScale. 1.0 corresponds to screenspace, 2.0 is double screen resolution, etc. Performance warning: This routine tesselates the polygon into triangles. Consider using Triangulator directly.
+void drawSolid( const class Path2d &path2d, float approximationScale = 1.0f );
+//! Draws a solid (filled) Shape2d \a shape2d using approximation scale \a approximationScale. 1.0 corresponds to screenspace, 2.0 is double screen resolution, etc. Performance warning: This routine tesselates the polygon into triangles. Consider using Triangulator directly.
+void drawSolid( const class Shape2d &shape2d, float approximationScale = 1.0f );
+//! Draws a solid (filled) PolyLine2f \a polyLine. Performance warning: This routine tesselates the polygon into triangles. Consider using Triangulator directly.
+void drawSolid( const PolyLine2f &polyLine );
+
+//! Draws a cinder::TriMesh \a mesh at the origin.
+void draw( const TriMesh2d &mesh );
+//! Draws a range of triangles starting with triangle # \a startTriangle and a count of \a triangleCount from cinder::TriMesh \a mesh at the origin.
+void drawRange( const TriMesh2d &mesh, size_t startTriangle, size_t triangleCount );
 //! Draws a cinder::TriMesh \a mesh at the origin.
 void draw( const TriMesh &mesh );
 //! Draws a range of triangles starting with triangle # \a startTriangle and a count of \a triangleCount from cinder::TriMesh \a mesh at the origin.
@@ -339,11 +354,11 @@ inline void glTexCoord4f( const cinder::Vec4f &v ) { glTexCoord4f( v.x, v.y, v.z
 //inline void glMultiTexCoord2f( GLenum target, const cinder::Vec2f &v ) { glMultiTexCoord2f( target, v.x, v.y ); }
 //inline void glMultiTexCoord3f( GLenum target, const cinder::Vec3f &v ) { glMultiTexCoord3f( target, v.x, v.y, v.z ); }
 //inline void glMultiTexCoord4f( GLenum target, const cinder::Vec4f &v ) { glMultiTexCoord4f( target, v.x, v.y, v.z, v.w ); }
-#endif // ! defined( CINDER_GLES )
 inline void glTranslatef( const cinder::Vec3f &v ) { glTranslatef( v.x, v.y, v.z ); }
 inline void glScalef( const cinder::Vec3f &v ) { glScalef( v.x, v.y, v.z ); }
 inline void glRotatef( float angle, const cinder::Vec3f &v ) { glRotatef( angle, v.x, v.y, v.z ); }
 inline void glRotatef( const cinder::Quatf &quat ) { cinder::Vec3f axis; float angle; quat.getAxisAngle( &axis, &angle ); glRotatef( cinder::toDegrees( angle ), axis.x, axis.y, axis.z ); }
 inline void glMultMatrixf( const cinder::Matrix44f &m ) { glMultMatrixf( m.m ); }
 inline void glLoadMatrixf( const cinder::Matrix44f &m ) { glLoadMatrixf( m.m ); }
+#endif // ! defined( CINDER_GLES )
 //@}

@@ -22,11 +22,11 @@
 
 #pragma once
 
-#include "cinder/App/App.h"
+#include "cinder/app/App.h"
 #include "cinder/cocoa/CinderCocoaTouch.h"
 #include "cinder/app/TouchEvent.h"
 #include "cinder/app/AccelEvent.h"
-
+#include "cinder/app/OpenUrlEvent.h"
 
 namespace cinder { namespace app {
 
@@ -81,6 +81,8 @@ class AppCocoaTouch : public App {
 	const std::vector<TouchEvent::Touch>&	getActiveTouches() const { return mActiveTouches; }	
 	//! Returns a Vec3d of the acceleration direction
 	virtual void		accelerated( AccelEvent event ) {}
+	//! called when the app is opened using a URL (must be set in plist)
+	virtual bool		urlOpened( OpenUrlEvent event ) { return false; }
 
 	//! Registers a callback for touchesBegan events. Returns a unique identifier which can be used as a parameter to unregisterTouchesBegan().
 	CallbackId		registerTouchesBegan( std::function<bool (TouchEvent)> callback ) { return mCallbacksTouchesBegan.registerCb( callback ); }
@@ -115,10 +117,9 @@ class AppCocoaTouch : public App {
 	void			unregisterAccelerated( CallbackId id ) { mCallbacksAccelerated.unregisterCb( id ); }
 
     template<typename T>
-	CallbackId		registerOpenURL( T *obj, bool (T::*callback)(OpenURLEvent) ) { return mCallbacksOpenURL.registerCb( std::bind1st( std::mem_fun( callback ), obj ) ); }
+	CallbackId		registerOpenURL( T *obj, bool (T::*callback)(OpenUrlEvent) ) { return mCallbacksOpenUrl.registerCb( std::bind1st( std::mem_fun( callback ), obj ) ); }
 	//! Unregisters a callback for touchesEnded events.
-	void			unregisterOpenURL( CallbackId id ) { mCallbacksOpenURL.unregisterCb( id ); }
-
+	void			unregisterOpenURL( CallbackId id ) { mCallbacksOpenUrl.unregisterCb( id ); }
 	
 	//! Returns the width of the App's window measured in pixels, or the screen when in full-screen mode.	
 	virtual int		getWindowWidth() const;
@@ -149,7 +150,7 @@ class AppCocoaTouch : public App {
 	virtual double		getElapsedSeconds() const;
 
 	//! Returns the path to the application on disk
-	virtual std::string			getAppPath();
+	virtual fs::path	getAppPath();
 
 	//! Ceases execution of the application. Not implemented yet on iPhone
 	virtual void	quit();
@@ -172,7 +173,8 @@ class AppCocoaTouch : public App {
 	// DO NOT CALL - should be private but aren't for esoteric reasons
 	//! \cond
 	// Internal handlers - these are called into by AppImpl's. If you are calling one of these, you have likely strayed far off the path.
-	void        privateOpenURL__( const OpenURLEvent &event );
+	bool        privateOpenURL__( const OpenUrlEvent &event );
+
     void		privatePrepareSettings__();
 	void		privateTouchesBegan__( const TouchEvent &event );
 	void		privateTouchesMoved__( const TouchEvent &event );
@@ -195,7 +197,7 @@ class AppCocoaTouch : public App {
 
 	CallbackMgr<bool (TouchEvent)>		mCallbacksTouchesBegan, mCallbacksTouchesMoved, mCallbacksTouchesEnded;
 	CallbackMgr<bool (AccelEvent)>		mCallbacksAccelerated;
-    CallbackMgr<bool (OpenURLEvent)>		mCallbacksOpenURL;
+    CallbackMgr<bool (OpenUrlEvent)>	mCallbacksOpenUrl;
 
 	float					mAccelFilterFactor;
 	Vec3f					mLastAccel, mLastRawAccel;

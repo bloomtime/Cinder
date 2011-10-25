@@ -65,18 +65,37 @@ void setupCocoaTouchWindow( AppCocoaTouch *app )
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
-    app->privateOpenURL__(cinder::app::OpenURLEvent([[url absoluteString] cString]));
+    if (!url) {
+        return NO;
+    }
+    NSString *urlString = [url absoluteString];
+    std::string stringUrl = std::string([urlString UTF8String]);
+    return app->privateOpenURL__(cinder::app::OpenUrlEvent(stringUrl));
 }
 
-- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
-    
-    app->privateOpenURL__(cinder::app::OpenURLEvent([[url absoluteString] cString])); 
-}
-
-- (void) applicationDidFinishLaunching:(UIApplication *)application
+- (BOOL) application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 	app = cinder::app::AppCocoaTouch::get();
 	setupCocoaTouchWindow( app );
+
+    // quite a complex set of behaviors can be triggered by this method
+    // @see http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:didFinishLaunchingWithOptions:
+    //
+
+    // TODO: 
+    // - handle UIApplicationLaunchOptionsRemoteNotificationKey when the app is opened from a remote notification
+    // - handle UIApplicationLaunchOptionsLocalNotificationKey when the app is opened from a local notification
+    // - handle UIApplicationLaunchOptionsLocationKey when the app is awakened by a location event
+    // - handle UIApplicationLaunchOptionsAnnotationKey when the app is launched by UIDocumentInteractionController to open a document
+
+    // in Cinder it might be more appropriate for apps to listen for UIApplicationDidFinishLaunchingNotification
+    // and inspect the resulting userInfo, rather than continuing to augment AppCocoaTouch for all possible cases
+
+    // TODO: for URLs opened by an app, should we be using UIApplicationLaunchOptionsSourceApplicationKey
+    // here to restrict which apps can open us?
+    
+    // for now we'll always say YES if an app opened an URL or file we claim to own in the plist...    
+    return (launchOptions != nil) && ([launchOptions objectForKey:UIApplicationLaunchOptionsURLKey] != nil);
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
@@ -205,9 +224,9 @@ double AppCocoaTouch::getElapsedSeconds() const
 	return ( currentTime - mState->mStartTime );
 }
 
-std::string AppCocoaTouch::getAppPath()
+fs::path AppCocoaTouch::getAppPath()
 { 
-	return [[[NSBundle mainBundle] bundlePath] UTF8String];
+	return fs::path([[[NSBundle mainBundle] bundlePath] UTF8String]);
 }
 
 void AppCocoaTouch::quit()
@@ -220,11 +239,16 @@ void AppCocoaTouch::privatePrepareSettings__()
 	prepareSettings( &mSettings );
 }
 
-void AppCocoaTouch::privateOpenURL__( const OpenURLEvent &event )
+bool AppCocoaTouch::privateOpenURL__( const OpenUrlEvent &event )
 {
     bool handled = false;
-    for( CallbackMgr<bool (OpenURLEvent)>::iterator cbIter = mCallbacksOpenURL.begin(); ( cbIter != mCallbacksOpenURL.end() ) && ( ! handled ); ++cbIter )
-        handled = (cbIter->second)( event );		
+    for( CallbackMgr<bool (OpenUrlEvent)>::iterator cbIter = mCallbacksOpenUrl.begin(); ( cbIter != mCallbacksOpenUrl.end() ) && ( ! handled ); ++cbIter ) {
+        handled = (cbIter->second)( event );
+    }
+    if (!handled) {
+        handled = urlOpened( event );
+    }
+    return handled;
 }
     
     
