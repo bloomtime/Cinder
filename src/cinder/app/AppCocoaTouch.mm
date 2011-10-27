@@ -131,7 +131,7 @@ void setupCocoaTouchWindow( AppCocoaTouch *app )
 - (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)thisAcceleration {
 	// Massage the UIAcceleration class into a Vec3f
 	ci::Vec3f direction( thisAcceleration.x, thisAcceleration.y, thisAcceleration.z );
-	app->privateAccelerated__( direction );
+	app->privateAccelerated__( direction ) ;
 }
 
 - (void) dealloc
