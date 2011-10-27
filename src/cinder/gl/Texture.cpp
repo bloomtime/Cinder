@@ -266,8 +266,6 @@ void Texture::init( const unsigned char *data, int unpackRowLength, GLenum dataF
 	glTexParameteri( mObj->mTarget, GL_TEXTURE_WRAP_T, format.mWrapT );
 	glTexParameteri( mObj->mTarget, GL_TEXTURE_MIN_FILTER, format.mMinFilter );	
 	glTexParameteri( mObj->mTarget, GL_TEXTURE_MAG_FILTER, format.mMagFilter );
-	if( format.mMipmapping )
-		glGenerateMipmap( mObj->mTarget );
 	if( mObj->mTarget == GL_TEXTURE_2D ) {
 		mObj->mMaxU = mObj->mMaxV = 1.0f;
 	}
@@ -284,6 +282,8 @@ void Texture::init( const unsigned char *data, int unpackRowLength, GLenum dataF
 #if ! defined( CINDER_GLES )
 	glPixelStorei( GL_UNPACK_ROW_LENGTH, 0 );
 #endif	
+	if( format.mMipmapping )
+		glGenerateMipmap( mObj->mTarget );
 }
 
 void Texture::init( const unsigned char *data, int compressedDataSize, const Format &format )
@@ -312,8 +312,7 @@ void Texture::init( const float *data, GLint dataFormat, const Format &format )
 	glTexParameteri( mObj->mTarget, GL_TEXTURE_WRAP_T, format.mWrapT );
 	glTexParameteri( mObj->mTarget, GL_TEXTURE_MIN_FILTER, format.mMinFilter );	
 	glTexParameteri( mObj->mTarget, GL_TEXTURE_MAG_FILTER, format.mMagFilter );
-	if( format.mMipmapping )
-		glGenerateMipmap( mObj->mTarget );
+
 	if( mObj->mTarget == GL_TEXTURE_2D ) {
 		mObj->mMaxU = mObj->mMaxV = 1.0f;
 	}
@@ -328,6 +327,9 @@ void Texture::init( const float *data, GLint dataFormat, const Format &format )
 	}
 	else
 		glTexImage2D( mObj->mTarget, 0, mObj->mInternalFormat, mObj->mWidth, mObj->mHeight, 0, GL_LUMINANCE, GL_FLOAT, 0 );  // init to black...
+        
+	if( format.mMipmapping )
+		glGenerateMipmap( mObj->mTarget );
 }
 
 void Texture::init( ImageSourceRef imageSource, const Format &format )
@@ -412,8 +414,6 @@ void Texture::init( ImageSourceRef imageSource, const Format &format )
 	glTexParameteri( mObj->mTarget, GL_TEXTURE_WRAP_T, format.mWrapT );
 	glTexParameteri( mObj->mTarget, GL_TEXTURE_MIN_FILTER, format.mMinFilter );	
 	glTexParameteri( mObj->mTarget, GL_TEXTURE_MAG_FILTER, format.mMagFilter );
-	if( format.mMipmapping )
-		glGenerateMipmap( mObj->mTarget );
 	if( mObj->mTarget == GL_TEXTURE_2D ) {
 		mObj->mMaxU = mObj->mMaxV = 1.0f;
 	}
@@ -439,6 +439,9 @@ void Texture::init( ImageSourceRef imageSource, const Format &format )
 		imageSource->load( target );		
 		glTexImage2D( mObj->mTarget, 0, mObj->mInternalFormat, mObj->mWidth, mObj->mHeight, 0, dataFormat, GL_FLOAT, target->getData() );
 	}
+    
+	if( format.mMipmapping )
+		glGenerateMipmap( mObj->mTarget );
 }
 
 void Texture::update( const Surface &surface )
