@@ -651,6 +651,9 @@
 		C7FB1BC6124BE31E0045AFD2 /* OutputImplAudioUnit.h in Headers */ = {isa = PBXBuildFile; fileRef = C7FB1BB1124BE31E0045AFD2 /* OutputImplAudioUnit.h */; };
 		C7FB1BC7124BE31E0045AFD2 /* PcmBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = C7FB1BB2124BE31E0045AFD2 /* PcmBuffer.h */; };
 		D2AAC088055469A000DB518D /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
+		E2A5289B145A7CEF0005BE8A /* CinderMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2A5289A145A7CEF0005BE8A /* CinderMath.cpp */; };
+		E2A5289C145A7CEF0005BE8A /* CinderMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2A5289A145A7CEF0005BE8A /* CinderMath.cpp */; };
+		E2A5289D145A7CEF0005BE8A /* CinderMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2A5289A145A7CEF0005BE8A /* CinderMath.cpp */; };
 		EAC3D1A91011F2E700FFBC9E /* Serial.h in Headers */ = {isa = PBXBuildFile; fileRef = EAC3D1A81011F2E700FFBC9E /* Serial.h */; };
 		EAC3D1AD1011F3AC00FFBC9E /* Serial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAC3D1AB1011F3AC00FFBC9E /* Serial.cpp */; };
 /* End PBXBuildFile section */
@@ -927,6 +930,7 @@
 		C7FB1BB2124BE31E0045AFD2 /* PcmBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PcmBuffer.h; sourceTree = "<group>"; };
 		D2AAC07E0554694100DB518D /* libcinder_d.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libcinder_d.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2F7E8BE07B2D77200F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+		E2A5289A145A7CEF0005BE8A /* CinderMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CinderMath.cpp; sourceTree = "<group>"; };
 		EAC3D1A81011F2E700FFBC9E /* Serial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Serial.h; sourceTree = "<group>"; };
 		EAC3D1AB1011F3AC00FFBC9E /* Serial.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Serial.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1247,6 +1251,7 @@
 				009EE4710F7A9FAC00F17CB1 /* PolyLine.cpp */,
 				00241ABC0E830DD5004D34EB /* Camera.cpp */,
 				00241ABD0E830DD5004D34EB /* Matrix.cpp */,
+				E2A5289A145A7CEF0005BE8A /* CinderMath.cpp */,
 				009EE56A0F803F5600F17CB1 /* BandedMatrix.cpp */,
 				009EE56B0F803F5600F17CB1 /* BSplineFit.cpp */,
 				009EE56C0F803F5600F17CB1 /* BSpline.cpp */,
@@ -2059,6 +2064,7 @@
 				00A1141C1355369A00081873 /* priorityq.c in Sources */,
 				00A1141E1355369A00081873 /* sweep.c in Sources */,
 				00A114201355369A00081873 /* tess.c in Sources */,
+				E2A5289C145A7CEF0005BE8A /* CinderMath.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2142,6 +2148,7 @@
 				00A1142B1355369A00081873 /* priorityq.c in Sources */,
 				00A1142D1355369A00081873 /* sweep.c in Sources */,
 				00A1142F1355369A00081873 /* tess.c in Sources */,
+				E2A5289D145A7CEF0005BE8A /* CinderMath.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2249,6 +2256,7 @@
 				00A1140F1355369A00081873 /* sweep.c in Sources */,
 				00A114111355369A00081873 /* tess.c in Sources */,
 				4354C4801357BC1100120EE3 /* TextureFont.cpp in Sources */,
+				E2A5289B145A7CEF0005BE8A /* CinderMath.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2321,7 +2329,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = i386;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CHECKED_STL = "-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2351,7 +2359,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = i386;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -2383,7 +2391,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = i386;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CHECKED_STL = "-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC";
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -2419,7 +2427,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = i386;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
