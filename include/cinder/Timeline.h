@@ -41,6 +41,8 @@ typedef std::shared_ptr<class Timeline>		TimelineRef;
 	
 class Timeline : public TimelineItem {		
   public:
+  	Timeline();
+	
 	//! Creates a new timeline, defaulted to infinite
 	static TimelineRef	create() { TimelineRef result( new Timeline() ); result->setInfinite( true ); return result; }
 
@@ -60,12 +62,28 @@ class Timeline : public TimelineItem {
 		return applyPtr( target->ptr(), endValue, duration, easeFunction, lerpFunction );
 	}
 
+	//! Replaces any existing tweens on the \a target with a new tween at the timeline's current time
+	template<typename T>
+	typename Tween<T>::Options apply( Anim<T> *target, T startValue, T endValue, float duration, EaseFn easeFunction = easeNone, typename Tween<T>::LerpFn lerpFunction = &tweenLerp<T> )
+	{
+		target->setParentTimeline( thisRef() );
+		return applyPtr( target->ptr(), startValue, endValue, duration, easeFunction, lerpFunction );
+	}
+
 	//! Creates a new tween and adds it to the end of the last tween on \a target, or if no existing tween matches the target, the current time.
 	template<typename T>
 	typename Tween<T>::Options appendTo( Anim<T> *target, T endValue, float duration, EaseFn easeFunction = easeNone, typename Tween<T>::LerpFn lerpFunction = &tweenLerp<T> )
 	{
 		target->setParentTimeline( thisRef() );
 		return appendToPtr( target->ptr(), endValue, duration, easeFunction, lerpFunction );
+	}
+
+	//! Creates a new tween and adds it to the end of the last tween on \a target, or if no existing tween matches the target, the current time.
+	template<typename T>
+	typename Tween<T>::Options appendTo( Anim<T> *target, T startValue, T endValue, float duration, EaseFn easeFunction = easeNone, typename Tween<T>::LerpFn lerpFunction = &tweenLerp<T> )
+	{
+		target->setParentTimeline( thisRef() );
+		return appendToPtr( target->ptr(), startValue, endValue, duration, easeFunction, lerpFunction );
 	}
 
 	//! Replaces any existing tweens on the \a target with a new tween at the timeline's current time. Consider the apply( Anim<T>* ) variant unless you have an advanced use case.
@@ -171,9 +189,7 @@ class Timeline : public TimelineItem {
 	virtual void	stepTo( float absoluteTime, bool reverse ) { stepTo( absoluteTime ); }
 	//! \endcond
 	
-  protected:
-  	Timeline();
-  
+  protected:  
 	virtual void reverse();
 	virtual TimelineItemRef cloneReverse() const;
 	virtual TimelineItemRef clone() const;
@@ -189,6 +205,10 @@ class Timeline : public TimelineItem {
 	float						mCurrentTime;
 	
 	std::multimap<void*,TimelineItemRef>		mItems;
+	
+  private:
+	Timeline( const Timeline &rhs ); // private to prevent copying; use clone() method instead
+	Timeline& operator=( const Timeline &rhs ); // not defined to prevent copying
 };
 
 class Cue : public TimelineItem {
