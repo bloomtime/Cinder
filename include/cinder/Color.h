@@ -175,6 +175,11 @@ class ColorT
 		return ColorT<T>( CHANTRAIT<T>::max(), CHANTRAIT<T>::max(), CHANTRAIT<T>::max() );
 	}
 
+	static ColorT<T> gray( T value )
+	{
+		return ColorT<T>( value, value, value );
+	}
+
 	operator T*(){ return (T*) this; }
 	operator const T*() const { return (const T*) this; }
 };
@@ -318,13 +323,21 @@ class ColorAT {
 		return ColorAT<T>( CHANTRAIT<T>::max(), CHANTRAIT<T>::max(), CHANTRAIT<T>::max(), CHANTRAIT<T>::max() );
 	}
 
+	static ColorAT<T> gray( T value )
+	{
+		return ColorAT<T>( value, value, value, CHANTRAIT<T>::max() );
+	}
+
 	operator T*(){ return (T*) this; }
 	operator const T*() const { return (const T*) this; }
 	operator ColorT<T>(){ return ColorT<T>( r, g, b ); }
 };
 
-// Free Functions
+// Operators
+template <typename T, typename Y> inline ColorT<T>  operator*( Y s, const ColorT<T>& c )  { return ColorT<T>( s*c.r, s*c.g, s*c.b ); }
+template <typename T, typename Y> inline ColorAT<T> operator*( Y s, const ColorAT<T>& c ) { return ColorAT<T>( s*c.r, s*c.g, s*c.b, s*c.a ); }
 
+// Free Functions
 extern ColorT<float> hsvToRGB( const Vec3f &hsv );
 extern Vec3f rgbToHSV( const ColorT<float> &c );
 
